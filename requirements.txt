@@ -1,0 +1,10 @@
+# Runtime dependencies for the workspace-tool-ocr sidecar image.
+# Keep in sync with [project.dependencies] in pyproject.toml.
+
+# MCP server SDK: FastMCP + Streamable HTTP transport. Exposes the
+# `ocr` tool the workspace agent calls over http://localhost:<port>/mcp.
+mcp>=1.2,<2
+
+# OCRmyPDF drives Tesseract + Ghostscript (both apt-installed in the
+# Dockerfile) to add a searchable text layer to scanned PDFs.
+ocrmypdf>=16
