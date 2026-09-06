@@ -5,9 +5,9 @@ calls over ``http://localhost:<WORKSPACE_TOOL_PORT>/mcp``. Same substrate as
 workspace-tool-office: co-located in the workspace pod, shares the tenant PVC, so
 the file stays on the shared mount and the RPC carries only the path + verdict.
 
-Port comes from WORKSPACE_TOOL_PORT (the operator injects it, distinct per
-co-located sidecar — one pod, one port space). Defaults to 8091 for standalone
-runs so it doesn't clash with workspace-tool-office's 8090 by habit.
+The bind port is REQUIRED via WORKSPACE_TOOL_PORT (the operator injects it,
+distinct per co-located sidecar — one pod, one port space; ocr is 8091 in the
+roster). Unset ⇒ the process exits at import rather than binding a guessed port.
 """
 
 from __future__ import annotations
@@ -29,8 +29,8 @@ from src.ocr_convert import (
 
 log = logging.getLogger("workspace-tool-ocr")
 
-HOST = os.environ.get("WORKSPACE_TOOL_HOST", "0.0.0.0")  # noqa: S104 - pod-local, reached via localhost
-PORT = int(os.environ.get("WORKSPACE_TOOL_PORT", "8091"))
+HOST = "0.0.0.0"  # noqa: S104 - pod-local bind; nothing injects a host, the pod netns is the fence
+PORT = int(os.environ["WORKSPACE_TOOL_PORT"])
 
 mcp = FastMCP("ocr", host=HOST, port=PORT)
 
