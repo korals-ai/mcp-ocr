@@ -17,6 +17,7 @@ import os
 import time
 from pathlib import Path
 
+import toollog
 from mcp.server.fastmcp import FastMCP
 
 from src.ocr_convert import (
@@ -83,7 +84,7 @@ def ocr(src: str, language: str = "eng") -> str:
 
 def main() -> None:
     """Run the MCP server forever over Streamable HTTP. Blocks; entrypoint."""
-    logging.basicConfig(level=logging.INFO)
+    toollog.configure("ocr")
     log.info(
         "workspace-tool-ocr MCP server on %s:%d (/mcp) — languages: %s",
         HOST,
