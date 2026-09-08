@@ -36,6 +36,10 @@ PORT = int(os.environ["WORKSPACE_TOOL_PORT"])
 
 mcp = FastMCP("ocr", host=HOST, port=PORT, lifespan=loopwatch.lifespan)
 
+# The liveness target. Answered by the loop above, so silence means wedged —
+# see loopwatch.serve_health.
+loopwatch.serve_health(mcp)
+
 
 @mcp.tool()
 def ocr(src: str, language: str = "eng") -> str:
