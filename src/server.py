@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 import loopwatch
+import toolbound
 import toollog
 from mcp.server.fastmcp import FastMCP
 
@@ -40,8 +41,13 @@ mcp = FastMCP("ocr", host=HOST, port=PORT, lifespan=loopwatch.lifespan)
 # see loopwatch.serve_health.
 loopwatch.serve_health(mcp)
 
+# See toolbound's module docstring for why this runs off the event loop,
+# bounded, instead of inline. ocrmypdf's own subprocess ceiling is 300s
+# (ocr_convert._DEFAULT_TIMEOUT_S); this is a backstop above it.
+_OCR_BOUND_S = 315.0
 
-@mcp.tool()
+
+@toolbound.tool(mcp, timeout_s=_OCR_BOUND_S)
 def ocr(src: str, language: str = "eng") -> str:
     """Add a searchable text layer to a scanned PDF (OCR).
 
