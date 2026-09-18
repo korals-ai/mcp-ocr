@@ -35,6 +35,14 @@ log = logging.getLogger("workspace-tool-ocr")
 HOST = "0.0.0.0"  # noqa: S104 - pod-local bind; nothing injects a host, the pod netns is the fence
 PORT = int(os.environ["WORKSPACE_TOOL_PORT"])
 
+# toolbound.TIMEOUT_TOTAL's own exporter port. The operator injects it iff the
+# roster entry declares a metricsPort — "0/absent = exporter ships inert" is
+# that field's own contract (apps/workspace-operator/internal/controller/
+# sidecars.go), so absence means no exporter, said loudly in main(), never a
+# default port. Same read as kb-search's/office's.
+_METRICS_PORT_RAW = os.environ.get("WORKSPACE_TOOL_METRICS_PORT")
+METRICS_PORT = int(_METRICS_PORT_RAW) if _METRICS_PORT_RAW else None
+
 mcp = FastMCP("ocr", host=HOST, port=PORT, lifespan=loopwatch.lifespan)
 
 # The liveness target. Answered by the loop above, so silence means wedged —
@@ -102,6 +110,14 @@ def main() -> None:
         PORT,
         ", ".join(SUPPORTED_LANGUAGES),
     )
+    if METRICS_PORT is None:
+        log.warning(
+            "tool=ocr op=metrics outcome=inert: no WORKSPACE_TOOL_METRICS_PORT — the "
+            "roster entry declares no metricsPort, so nothing scrapes this container"
+        )
+    else:
+        toolbound.serve_metrics(METRICS_PORT, HOST)
+        log.info("tool=ocr op=metrics outcome=ok port=%d path=/metrics", METRICS_PORT)
     mcp.run(transport="streamable-http")
 
 

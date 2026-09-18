@@ -10,6 +10,11 @@ mcp>=1.2,<2
 # transitively, but a runtime import is declared here, not inherited.
 anyio>=4.0
 
+# toolbound.TIMEOUT_TOTAL's own /metrics exporter, scraped by its PodMonitor
+# on the roster's metricsPort. Same reason as anyio: a real transitive import
+# from toolbound, declared here, not inherited.
+prometheus_client>=0.20
+
 # OCRmyPDF drives Tesseract + Ghostscript (both apt-installed in the
 # Dockerfile) to add a searchable text layer to scanned PDFs.
 ocrmypdf>=16
